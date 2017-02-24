@@ -25,17 +25,21 @@ while loop:
 df = pd.concat(chunks, ignore_index=True)
 df.columns=['id','reports','comments','source','time','text']
 # print df['text'][0:10]
-# group=df['text'].groupby(df['id'])
+group=df['text'].groupby(df['id'])
 # print group.size()
+for i,j in group:
+  print i
+  print('-------')
+  print j.index
 
-phase=[]
-for i in range(0,11):
-  phase.append(df['text'][i])
-a=' '
-phase=a.join(phase)
+# phase=[]
+# for i in range(0,11):
+#   phase.append(df['text'][i])
+# a=' '
+# phase=a.join(phase)
 # print phase
-
-pynlpir.open()
-result=pynlpir.segment(phase)
-pynlpir.close()
-print result
+#
+# pynlpir.open()
+# result=pynlpir.segment(phase,pos_tagging=False)
+# pynlpir.close()
+# print result
