@@ -28,9 +28,14 @@ df.columns=['id','reports','comments','source','time','text']
 group=df['text'].groupby(df['id'])
 # print group.size()
 for i,j in group:
-  print i
-  print('-------')
-  print j.index
+  # print i
+  # print('-------')
+  text=j.values
+  # print text[0]
+  file_name="H:\\user_content\\"+str(i)+"_content.txt"
+  with open(file_name,"w") as f:
+    for x in text:
+      f.write(str(x))
 
 # phase=[]
 # for i in range(0,11):
