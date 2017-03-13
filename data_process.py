@@ -17,7 +17,8 @@ while loop:
     chunk = reader.get_chunk(chunkSize)
     chunks.append(chunk)
     index=index+1
-    if index>4 :
+    print "Iteration %d"%(index)
+    if index>2499 :
       loop = False
   except StopIteration:
     loop = False
