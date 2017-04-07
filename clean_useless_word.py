@@ -4,7 +4,9 @@ from documentRead import DocumentRead
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-
+'''
+To filter the words in stopwords list
+'''
 stopwords = open("F:\\Git Repository\\stopwords.txt", 'rb').read().splitlines()
 
 directory ='F:\\Git Repository\\user_seg_content'
