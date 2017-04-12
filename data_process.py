@@ -21,7 +21,7 @@ while loop:
     chunks.append(chunk)
     index=index+1
     print "Iteration %d"%(index)
-    if index>2499 :
+    if index>499 :
       loop = False
   except StopIteration:
     loop = False
@@ -29,14 +29,14 @@ while loop:
 df = pd.concat(chunks, ignore_index=True)
 df.columns=['id','reports','comments','source','time','text']
 # print df['text'][0:10]
-group=df['text'].groupby(df['id']).sum()
+group=df['text'].groupby(df['id'])
 # print group.size()
 for i,j in group:
   # print i
   # print('-------')
   text=j.values
   # print text
-  file_name="F:\\Git Repository\\comments.txt"
+  file_name="F:\\Git Repository\\500w_user_content\\"+str(i)+"_content.txt"
   with open(file_name,"w") as f:
     for x in text:
       f.write(str(x))

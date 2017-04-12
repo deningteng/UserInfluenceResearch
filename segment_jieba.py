@@ -19,9 +19,9 @@ for index in range(0, len(documents_name),1):
     str=unicode(documents[index])
     pattern2 = re.compile(u"-|/+|[u4e00-u9fa5]+|\s+|[.]|\#")
     pattern3 = re.compile(u"[A-Za-z]+")
-    str = pattern2.sub("", str)
-    str = pattern3.sub("", str)
-    seg_list = jieba.cut(str)  # 默认是精确模式
+    str = pattern2.sub("。", str)
+    str = pattern3.sub("。", str)
+    seg_list = jieba.cut(str, cut_all=False)  # 默认是精确模式
 
     stayed_line = ""
     for seg in seg_list:

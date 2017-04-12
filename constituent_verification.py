@@ -12,6 +12,26 @@ The evaluation index is follower_count of users, which is twitter's indication t
 from scipy import stats
 from get_community_member import community_member
 from documentRead import DocumentRead
+
+def get_influence_list():
+    directory = 'F:\\Git Repository\\InfluenceScore_result\\'
+    documentReader = DocumentRead(directory)
+    documentReader.load_document(key_word_list='InfluenceRank')
+    document_name = documentReader.get_documents_name()
+    user_influence_list = {}
+    for index in range(0,len(document_name)):
+        f = open(directory + document_name[index])
+        line_num = 0
+        for line in f.readlines():
+            line_num = line_num + 1
+            if (line_num > 4):
+                line = line.strip('\n')
+                score=line.split(',')
+                user_influence_list[score[0]]=score[1]
+    return user_influence_list
+
+
+
 def get_influence_score(list):
     directory = 'F:\\Git Repository\\InfluenceScore_result\\'
     documentReader = DocumentRead(directory)
@@ -30,10 +50,50 @@ def get_influence_score(list):
     score_list=[]
     for id in list:
         if id in user_list.keys():
-            score_list.append(user_list[id])
+            score_list.append(float(user_list[id]))
         else:
-            score_list.append(0)
+            score_list.append(0.0)
     return score_list
+
+def get_followers_list():
+    followers_num = {}
+    f = open('follower_num_1.csv')
+    for line in f.readlines():
+        line = line.strip('\n')
+        user_follower = line.split(',')
+        followers_num[user_follower[0]] = user_follower[1]
+    return followers_num
+
+def get_influence_rank(list,user_influence_list):
+    user_influence = {}
+    rank=[]
+    for item in list:
+        if item in user_influence_list.keys():
+            user_influence[item] = float(user_influence_list[item])
+        else:
+            user_influence[item] = 0.0
+    list_sorted = sorted(user_influence.iteritems(), key=lambda asd: asd[1], reverse=True)
+    for item in list:
+        for index in range(0,len(list_sorted)):
+            if item==list_sorted[index][0]:
+                rank.append(int(index))
+    return rank
+
+def get_followers_num_rank(list,user_follower_num):
+    user_follower={}
+    rank=[]
+    for item in list:
+        if item in user_follower_num.keys():
+            user_follower[item]=float(user_follower_num[item])
+        else:
+            user_follower[item]=0.0
+    list_sorted = sorted(user_follower.iteritems(), key=lambda asd: asd[1], reverse=True)
+    for item in list:
+        for index in range(0, len(list_sorted)):
+            if item==list_sorted[index][0]:
+                rank.append(int(index))
+    return rank
+
 
 def get_followers_num(list):
     followers_num={}
@@ -43,16 +103,17 @@ def get_followers_num(list):
         user_follower=line.split(',')
         followers_num[user_follower[0]]=user_follower[1]
     follower_num_list=[]
-
     for item in list:
         if item in followers_num.keys():
-            follower_num_list.append(followers_num[item])
+            follower_num_list.append(float(followers_num[item]))
         else:
-            follower_num_list.append(0)
+            follower_num_list.append(0.0)
     return follower_num_list
 
 if __name__ == '__main__':
     proportion=0.1
+    user_influence_list = get_influence_list()
+    user_follower_num=get_followers_list()
     community_member=community_member()
     f1=open('reports_count_1.csv')
     f2=open('message_count_1.csv')
@@ -127,7 +188,7 @@ if __name__ == '__main__':
     for index in range(0,len(community_member)):
         low_message_low_report_user[index]=list(set(community_report_low_user[index])&set(community_message_low_user[index]))
         # print get_influence_score(low_message_low_report_user[index])[0:9]
-        print stats.kendalltau(get_followers_num(low_message_low_report_user[index]),get_influence_score(low_message_low_report_user[index]))[0]
+        print stats.kendalltau(get_influence_rank(low_message_low_report_user[index],user_influence_list),get_followers_num_rank(low_message_low_report_user[index],user_follower_num))[0]
         # print len(low_message_low_report_user[index])
     # high_message_low_report_user={}
     # for index in range(0,len(community_member)):
@@ -143,51 +204,17 @@ if __name__ == '__main__':
     for index in range(0,len(community_member)):
         high_message_high_report_user[index] = list(set(community_report_high_user[index]) & set(community_message_high_user[index]))
         # print get_influence_score(high_message_high_report_user[index])[0:9]
-        print stats.kendalltau(get_followers_num(high_message_high_report_user[index]),get_influence_score(high_message_high_report_user[index]))[0]
+        print stats.kendalltau(get_influence_rank(high_message_high_report_user[index],user_influence_list),get_followers_num_rank(high_message_high_report_user[index],user_follower_num))[0]
         # print len(high_message_high_report_user[index])
 
-
-
-
-
-    # report_dic_sorted=sorted(report_dic.iteritems(),key=lambda asd:asd[1],reverse=False)
-    # report_count=len(report_dic_sorted)
-    # report_high=int(round(report_count*0.9))
-    # report_low=int(report_count*0.1)
-    # report_high_user=[]
-    # report_low_user=[]
-    # for index in range(report_high-1,report_count):
-    #     report_high_user.append(report_dic_sorted[index][0])
-    # for index in range(0,report_low):
-    #     report_low_user.append(report_dic_sorted[index][0])
-
-
-    # message_dic_sorted=sorted(message_dic.iteritems(),key=lambda asd:asd[1],reverse=False)
-    # message_count=len(message_dic_sorted)
-    # message_high=int(round(message_count*0.9))
-    # message_low=int(message_count*0.1)
-    # message_high_user=[]
-    # message_low_user=[]
-    # for index in range(message_high-1,message_count):
-    #     message_high_user.append(message_dic_sorted[index][0])
-    # for index in range(0,message_low):
-    #     message_low_user.append(message_dic_sorted[index][0])
-
-    # print report_high_user
-    # print report_low_user
-    # print message_high_user
-    # print message_low_user
-
-    # low_message_low_report_user=list(set(report_low_user)&set(message_low_user))
-    # print len(low_message_low_report_user)
-    # high_message_low_report_user=list(set(report_low_user)&set(message_high_user))
-    # print len(high_message_low_report_user)
-    # low_message_high_report_user=list(set(report_high_user)&set(message_low_user))
-    # print len(low_message_high_report_user)
-    # high_message_high_report_user=list(set(report_high_user)&set(message_high_user))
-    # print len(high_message_high_report_user)
-    #
-    # print stats.kendalltau(get_followers_num(low_message_low_report_user),get_influence_score(low_message_low_report_user))[0]
-    # print stats.kendalltau(get_followers_num(high_message_low_report_user), get_influence_score(high_message_low_report_user))[0]
-    # print stats.kendalltau(get_followers_num(low_message_high_report_user),get_influence_score(low_message_high_report_user))[0]
-    # print stats.kendalltau(get_followers_num(high_message_high_report_user),get_influence_score(high_message_high_report_user))[0]
+    # for index in range(0, len(community_member)):
+    #     print stats.kendalltau(get_influence_score(community_report_high_user[index]),get_followers_num(community_report_high_user[index]))[0]
+    # print '--------------------'
+    # for index in range(0, len(community_member)):
+    #     print stats.kendalltau(get_influence_score(community_report_low_user[index]),get_followers_num(community_report_low_user[index]))[0]
+    # print '--------------------'
+    # for index in range(0, len(community_member)):
+    #     print stats.kendalltau(get_influence_score(community_message_low_user[index]),get_followers_num(community_message_low_user[index]))[0]
+    # print '--------------------'
+    # for index in range(0, len(community_member)):
+    #     print stats.kendalltau(get_influence_score(community_message_high_user[index]),get_followers_num(community_message_high_user[index]))[0]
