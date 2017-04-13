@@ -1,8 +1,8 @@
 from documentRead import DocumentRead
 
 
-def community_member():
-    directory ='F:\\Git Repository\\InfluenceScore_result\\'
+def community_member(directory):
+    # directory ='F:\\Git Repository\\InfluenceScore_result\\'
     documentReader=DocumentRead(directory)
     documentReader.load_document(key_word_list='memberOfCommunity')
     document_name=documentReader.get_documents_name()

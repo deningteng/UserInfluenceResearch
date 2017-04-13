@@ -7,14 +7,14 @@ from documentRead import DocumentRead
 Find followers data for users who are covered in influence calculation
 '''
 
-directory ='F:\\Git Repository\\weibo'
+directory ='C:\\dening\\step_one_data\\weibo\\'
 documentReader=DocumentRead(directory)
 documentReader.load_document()
 documents_name=documentReader.get_documents_name()
 newdata = []
 df = pd.DataFrame(columns=['userid','followerid'])
 for index in range(0,len(documents_name)):
-    reader = pd.read_csv('F:\\Git Repository\\weibo\\'+documents_name[index],header=None)
+    reader = pd.read_csv(directory+documents_name[index],header=None)
     reader.columns=['userid','followerid']
     reader=reader.astype(object)
     # print reader
