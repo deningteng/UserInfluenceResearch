@@ -38,7 +38,8 @@ def get_followers_list():
         user_follower = line.split(',')
         followers_num[user_follower[0]] = user_follower[1]
     return followers_num
-
+def fmap(a,b):
+    return (a,b)
 def get_influence_rank(list,user_influence_list):
     user_influence = {}
     rank=[]
@@ -78,6 +79,14 @@ def get_followers_num_rank(list,user_follower_num):
                 rank.append(int(index))
     return rank
 
+def get_report_radio(list,report_radio_list):
+    report_radio=[]
+    for item in list:
+        if item in report_radio_list.keys():
+            report_radio.append(float(report_radio_list[item]))
+        else:
+            report_radio.append(0.0)
+    return report_radio
 
 
 def get_followers_num(list,followers_num):
@@ -102,7 +111,7 @@ if __name__ == '__main__':
     for line in f1.readlines():
         line=line.strip('\n')
         report=line.split(',')
-        report_dic[report[0]]=int(report[1])
+        report_dic[report[0]]=float(report[1])
     community_member_report=community_member
     for index1 in range(0,len(community_member_report)):
         for index2 in range(0,len(community_member_report[index1])):
@@ -110,13 +119,13 @@ if __name__ == '__main__':
             if id in report_dic.keys():
                 community_member_report[index1][id]=report_dic[id]
             else:
-                community_member_report[index1][id]=0
+                community_member_report[index1][id]=0.0
     # print community_member_report.keys()
 
     for line in f2.readlines():
         line=line.strip('\n')
         message=line.split(',')
-        message_dic[message[0]]=int(message[1])
+        message_dic[message[0]]=float(message[1])
     community_member_message=community_member
     for index1 in range(0,len(community_member_message)):
         for index2 in range(0,len(community_member_message[index1])):
@@ -124,7 +133,7 @@ if __name__ == '__main__':
             if id in message_dic.keys():
                 community_member_message[index1][id]=message_dic[id]
             else:
-                community_member_message[index1][id]=0
+                community_member_message[index1][id]=0.0
     # print community_member_message.keys()
 
     community_report_high_user={}
@@ -179,8 +188,8 @@ if __name__ == '__main__':
         followers_dic = community_member_follows[index1]
         followers_dic_sorted = sorted(followers_dic.iteritems(), key=lambda asd: asd[1], reverse=False)
         followers_count = len(followers_dic_sorted)
-        followers_high = int(round(followers_count * (1 - proportion*5)))
-        followers_low = int(followers_count * proportion*5)
+        followers_high = int(round(followers_count * (1 - proportion)))
+        followers_low = int(followers_count * proportion)
         followers_high_user = []
         followers_low_user = []
         for index2 in range(followers_high - 1, followers_count):
@@ -190,32 +199,93 @@ if __name__ == '__main__':
         community_followers_high_user[index1] = followers_high_user
         community_followers_low_user[index1] = followers_low_user
 
-    for index in range(0, len(community_member)):
-        print len(list(set(community_report_low_user[index]) & set(community_message_low_user[index])&set(community_followers_high_user)))
+    # for index in range(0, len(community_member)):
+    #     print len(list(set(community_report_low_user[index]) & set(community_message_low_user[index])&set(community_followers_high_user)))
+    print 'message_count-follower_num_count'
+    sum=0.0
+    for index in range(0,len(community_member)):
+        correlation = stats.kendalltau(community_member_message[index].values(), get_followers_num(community_member_message[index].keys(),user_follower_num))[0]
+        print correlation
+        sum=sum+correlation
+    print 'average correlation:%f'%(sum/len(community_member))
+    print 'report_count-follower_num_count'
+    sum=0.0
+    for index in range(0,len(community_member)):
+        correlation=stats.kendalltau(community_member_report[index].values(), get_followers_num(community_member_report[index].keys(),user_follower_num))[0]
+        print correlation
+        sum=sum+correlation
+    print 'average correlation:%f'%(sum/len(community_member))
 
-
-    # low_message_low_report_user={}
-    # for index in range(0,len(community_member)):
-    #     low_message_low_report_user[index]=list(set(community_report_low_user[index])&set(community_message_low_user[index]))
-    #     scores=get_influence_scores(low_message_low_report_user[index],user_influence_list)
-    #     followers_num=get_followers_num(low_message_low_report_user[index],user_follower_num)
-    #     print stats.kendalltau(scores,followers_num)[0]
+    low_message_low_report_user={}
+    print 'low message low report'
+    sum = 0.0
+    for index in range(0,len(community_member)):
+        low_message_low_report_user[index]=list(set(community_report_low_user[index])&set(community_message_low_user[index]))
+        scores=get_influence_scores(low_message_low_report_user[index],user_influence_list)
+        followers_num=get_followers_num(low_message_low_report_user[index],user_follower_num)
+        correlation= stats.kendalltau(scores,followers_num)[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f'%(sum/len(community_member))
         # print len(low_message_low_report_user[index])
 
     print '-------------------------------------------'
-    # high_message_high_report_user={}
-    # for index in range(0,len(community_member)):
-    #     high_message_high_report_user[index] = list(set(community_report_high_user[index]) & set(community_message_high_user[index]))
-    #     print stats.kendalltau(get_influence_scores(high_message_high_report_user[index],user_influence_list),get_followers_num(high_message_high_report_user[index],user_follower_num))[0]
+    print 'high message high report'
+    high_message_high_report_user={}
+    sum = 0.0
+    for index in range(0,len(community_member)):
+        high_message_high_report_user[index] = list(set(community_report_high_user[index]) & set(community_message_high_user[index]))
+        correlation=stats.kendalltau(get_influence_scores(high_message_high_report_user[index],user_influence_list),get_followers_num(high_message_high_report_user[index],user_follower_num))[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f'%(sum/len(community_member))
+    sum = 0.0
+    print 'report high'
+    for index in range(0, len(community_member)):
+        correlation=stats.kendalltau(get_influence_scores(community_report_high_user[index],user_influence_list),get_followers_num(community_report_high_user[index],user_follower_num))[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f' % (sum/len(community_member))
+    print '--------------------'
+    print 'report low'
+    sum=0.0
+    for index in range(0, len(community_member)):
+        correlation= stats.kendalltau(get_influence_scores(community_report_low_user[index],user_influence_list),get_followers_num(community_report_low_user[index],user_follower_num))[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f' % (sum/len(community_member))
+    print '--------------------'
+    sum=0.0
+    print 'message low'
+    for index in range(0, len(community_member)):
+        correlation= stats.kendalltau(get_influence_scores(community_message_low_user[index],user_influence_list),get_followers_num(community_message_low_user[index],user_follower_num))[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f' % (sum/len(community_member))
+    print '--------------------'
+    sum=0.0
+    print 'message high'
+    for index in range(0, len(community_member)):
+        correlation=stats.kendalltau(get_influence_scores(community_message_high_user[index],user_influence_list),get_followers_num(community_message_high_user[index],user_follower_num))[0]
+        sum=sum+correlation
+        print correlation
+    print 'average correlation:%f' % (sum/len(community_member))
 
-    # for index in range(0, len(community_member)):
-    #     print stats.kendalltau(get_influence_score(community_report_high_user[index]),get_followers_num(community_report_high_user[index]))[0]
-    # print '--------------------'
-    # for index in range(0, len(community_member)):
-    #     print stats.kendalltau(get_influence_score(community_report_low_user[index]),get_followers_num(community_report_low_user[index]))[0]
-    # print '--------------------'
-    # for index in range(0, len(community_member)):
-    #     print stats.kendalltau(get_influence_score(community_message_low_user[index]),get_followers_num(community_message_low_user[index]))[0]
-    # print '--------------------'
-    # for index in range(0, len(community_member)):
-    #     print stats.kendalltau(get_influence_score(community_message_high_user[index]),get_followers_num(community_message_high_user[index]))[0]
+    community_report_radio={}
+    for index in range(0,len(community_member)):
+        report_dic=community_member_report[index]
+        message_dic=community_member_message[index]
+        report_radio=map(lambda (a,b):float(a)/float(b) if float(b)!=0.0 else 0.0,zip(report_dic.values(),message_dic.values()))
+        print report_radio
+        lm=map(fmap,community_member[index].keys(),report_radio)
+        community_report_radio[index]=dict(lm)
+    print '------------------'
+    sum=0.0
+    for index in range(0,len(community_member)):
+        correlation=stats.kendalltau(get_influence_scores(high_message_high_report_user[index],user_influence_list),
+                                     get_report_radio(high_message_high_report_user[index],community_report_radio[index]))[0]
+        sum=sum+correlation
+        print correlation
+    print sum
+
+
