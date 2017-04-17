@@ -40,20 +40,20 @@ def get_followers_list():
     return followers_num
 def fmap(a,b):
     return (a,b)
-def get_influence_rank(list,user_influence_list):
-    user_influence = {}
-    rank=[]
-    for item in list:
-        if item in user_influence_list.keys():
-            user_influence[item] = float(user_influence_list[item])
-        else:
-            user_influence[item] = 0.0
-    list_sorted = sorted(user_influence.iteritems(), key=lambda asd: asd[1], reverse=True)
-    for item in list:
-        for index in range(0,len(list_sorted)):
-            if item==list_sorted[index][0]:
-                rank.append(int(index))
-    return rank
+# def get_influence_rank(list,user_influence_list):
+#     user_influence = {}
+#     rank=[]
+#     for item in list:
+#         if item in user_influence_list.keys():
+#             user_influence[item] = float(user_influence_list[item])
+#         else:
+#             user_influence[item] = 0.0
+#     list_sorted = sorted(user_influence.iteritems(), key=lambda asd: asd[1], reverse=True)
+#     for item in list:
+#         for index in range(0,len(list_sorted)):
+#             if item==list_sorted[index][0]:
+#                 rank.append(int(index))
+#     return rank
 
 def get_influence_scores(list,user_influence_list):
     scores=[]
@@ -64,20 +64,20 @@ def get_influence_scores(list,user_influence_list):
             scores.append(0.0)
     return scores
 
-def get_followers_num_rank(list,user_follower_num):
-    user_follower={}
-    rank=[]
-    for item in list:
-        if item in user_follower_num.keys():
-            user_follower[item]=float(user_follower_num[item])
-        else:
-            user_follower[item]=0.0
-    list_sorted = sorted(user_follower.iteritems(), key=lambda asd: asd[1], reverse=True)
-    for item in list:
-        for index in range(0, len(list_sorted)):
-            if item==list_sorted[index][0]:
-                rank.append(int(index))
-    return rank
+# def get_followers_num_rank(list,user_follower_num):
+#     user_follower={}
+#     rank=[]
+#     for item in list:
+#         if item in user_follower_num.keys():
+#             user_follower[item]=float(user_follower_num[item])
+#         else:
+#             user_follower[item]=0.0
+#     list_sorted = sorted(user_follower.iteritems(), key=lambda asd: asd[1], reverse=True)
+#     for item in list:
+#         for index in range(0, len(list_sorted)):
+#             if item==list_sorted[index][0]:
+#                 rank.append(int(index))
+#     return rank
 
 def get_report_radio(list,report_radio_list):
     report_radio=[]
@@ -88,6 +88,23 @@ def get_report_radio(list,report_radio_list):
             report_radio.append(0.0)
     return report_radio
 
+def get_message_num(list,message_dic):
+    message_num_list=[]
+    for item in list:
+        if item in message_dic.keys():
+            message_num_list.append(float(message_dic[item]))
+        else:
+            message_num_list.append(0.0)
+    return message_num_list
+
+def get_report_num(list,report_dic):
+    report_num_list=[]
+    for item in list:
+        if item in report_dic.keys():
+            report_num_list.append(report_dic[item])
+        else:
+            report_num_list.append(0.0)
+    return report_num_list
 
 def get_followers_num(list,followers_num):
     follower_num_list=[]
@@ -104,14 +121,18 @@ if __name__ == '__main__':
     user_influence_list = get_influence_list(directory)
     user_follower_num=get_followers_list()
     community_member=community_member("C:\\dening\\InterestCommunityAcquisition\\result_standard\\")
-    f1=open('reports.csv')
-    f2=open('message_count.csv')
-    report_dic={}
-    message_dic={}
-    for line in f1.readlines():
-        line=line.strip('\n')
-        report=line.split(',')
-        report_dic[report[0]]=float(report[1])
+    report_dic = {}
+    message_dic = {}
+    with open('reports.csv', "r") as f1:
+        for line in f1.readlines():
+            line=line.strip('\n')
+            report=line.split(',')
+            report_dic[report[0]]=float(report[1])
+    with open('message_count.csv', "r") as f2:
+        for line in f2.readlines():
+            line=line.strip('\n')
+            message=line.split(',')
+            message_dic[message[0]]=float(message[1])
     community_member_report=community_member
     for index1 in range(0,len(community_member_report)):
         for index2 in range(0,len(community_member_report[index1])):
@@ -122,10 +143,7 @@ if __name__ == '__main__':
                 community_member_report[index1][id]=0.0
     # print community_member_report.keys()
 
-    for line in f2.readlines():
-        line=line.strip('\n')
-        message=line.split(',')
-        message_dic[message[0]]=float(message[1])
+
     community_member_message=community_member
     for index1 in range(0,len(community_member_message)):
         for index2 in range(0,len(community_member_message[index1])):
@@ -208,6 +226,7 @@ if __name__ == '__main__':
         print correlation
         sum=sum+correlation
     print 'average correlation:%f'%(sum/len(community_member))
+    print '-------------------'
     print 'report_count-follower_num_count'
     sum=0.0
     for index in range(0,len(community_member)):
@@ -217,7 +236,7 @@ if __name__ == '__main__':
     print 'average correlation:%f'%(sum/len(community_member))
 
     low_message_low_report_user={}
-    print 'low message low report'
+    print 'low message low report:influence_followers_num_count'
     sum = 0.0
     for index in range(0,len(community_member)):
         low_message_low_report_user[index]=list(set(community_report_low_user[index])&set(community_message_low_user[index]))
@@ -229,8 +248,8 @@ if __name__ == '__main__':
     print 'average correlation:%f'%(sum/len(community_member))
         # print len(low_message_low_report_user[index])
 
-    print '-------------------------------------------'
-    print 'high message high report'
+    print '--------------------'
+    print 'high message high report:influence score_followers_num_count'
     high_message_high_report_user={}
     sum = 0.0
     for index in range(0,len(community_member)):
@@ -239,15 +258,17 @@ if __name__ == '__main__':
         sum=sum+correlation
         print correlation
     print 'average correlation:%f'%(sum/len(community_member))
+    print '-------------------'
     sum = 0.0
-    print 'report high'
+    print 'report high:influence score_followers_num_count'
     for index in range(0, len(community_member)):
         correlation=stats.kendalltau(get_influence_scores(community_report_high_user[index],user_influence_list),get_followers_num(community_report_high_user[index],user_follower_num))[0]
         sum=sum+correlation
         print correlation
     print 'average correlation:%f' % (sum/len(community_member))
     print '--------------------'
-    print 'report low'
+    print 'report low:influence score_followers_num_count'
+    print '--------------------'
     sum=0.0
     for index in range(0, len(community_member)):
         correlation= stats.kendalltau(get_influence_scores(community_report_low_user[index],user_influence_list),get_followers_num(community_report_low_user[index],user_follower_num))[0]
@@ -256,7 +277,7 @@ if __name__ == '__main__':
     print 'average correlation:%f' % (sum/len(community_member))
     print '--------------------'
     sum=0.0
-    print 'message low'
+    print 'message low:influence score_followers_num_count'
     for index in range(0, len(community_member)):
         correlation= stats.kendalltau(get_influence_scores(community_message_low_user[index],user_influence_list),get_followers_num(community_message_low_user[index],user_follower_num))[0]
         sum=sum+correlation
@@ -264,28 +285,40 @@ if __name__ == '__main__':
     print 'average correlation:%f' % (sum/len(community_member))
     print '--------------------'
     sum=0.0
-    print 'message high'
+    print 'message high:influence score_followers_num_count'
     for index in range(0, len(community_member)):
         correlation=stats.kendalltau(get_influence_scores(community_message_high_user[index],user_influence_list),get_followers_num(community_message_high_user[index],user_follower_num))[0]
         sum=sum+correlation
         print correlation
     print 'average correlation:%f' % (sum/len(community_member))
+    # community_report_radio={}
+    # for index in range(0,len(community_member)):
+    #     report_dic=community_member_report[index]
+    #     message_dic=community_member_message[index]
+    #     report_radio=map(lambda (a,b):float(a)/float(b) if float(b)!=0.0 else 0.0,zip(report_dic.values(),message_dic.values()))
+    #     print report_radio
+    #     lm=map(fmap,community_member[index].keys(),report_radio)
+    #     community_report_radio[index]=dict(lm)
+    # print '------------------'
+    # sum=0.0
+    # print 'high message high report:influence_score_report_radio'
+    # for index in range(0,len(community_member)):
+    #     correlation=stats.kendalltau(get_influence_scores(high_message_high_report_user[index],user_influence_list),
+    #                                  get_report_radio(high_message_high_report_user[index],community_report_radio[index]))[0]
+    #     sum=sum+correlation
+    #     print correlation
+    # print sum
 
-    community_report_radio={}
-    for index in range(0,len(community_member)):
-        report_dic=community_member_report[index]
-        message_dic=community_member_message[index]
-        report_radio=map(lambda (a,b):float(a)/float(b) if float(b)!=0.0 else 0.0,zip(report_dic.values(),message_dic.values()))
-        print report_radio
-        lm=map(fmap,community_member[index].keys(),report_radio)
-        community_report_radio[index]=dict(lm)
-    print '------------------'
-    sum=0.0
-    for index in range(0,len(community_member)):
-        correlation=stats.kendalltau(get_influence_scores(high_message_high_report_user[index],user_influence_list),
-                                     get_report_radio(high_message_high_report_user[index],community_report_radio[index]))[0]
-        sum=sum+correlation
-        print correlation
-    print sum
+    print 'high message:influence_score_message_count'
+    print 'low message:influence_score_message_count'
+    print 'message:influence_score_message_count'
+
+    print 'high report:influence score_message_count'
+    print 'low report:influence score_message_count'
+    print 'report:influence score_message_count'
+
+    print 'high followers:influence score_followers_count'
+    print 'low followers:influence score_followers_count'
+    print 'followers:influence score_followers_count'
 
 
